@@ -1,0 +1,64 @@
+﻿MaTinh,TenTinh,prov,key,income_2018,ethnic_minority_pct_2015
+01,THÀNH PHỐ HÀ NỘI,1,hanoi,6054,48.48
+02,THÀNH PHỐ HỒ CHÍ MINH,2,hochiminh,6177,41.78
+03,THÀNH PHỐ HẢI PHÒNG,3,haiphong,5116,0.0
+04,THÀNH PHỐ ĐÀ NẴNG,4,danang,5506,0.0
+05,TỈNH HÀ GIANG,5,hagiang,1725,97.42
+06,TỈNH CAO BẰNG,6,caobang,1856,100.0
+07,TỈNH LAI CHÂU,7,laichau,1492,100.0
+08,TỈNH LÀO CAI,8,laocai,2324,95.1
+09,TỈNH TUYÊN QUANG,9,tuyenquang,2261,92.63
+10,TỈNH LẠNG SƠN,10,langson,2047,97.7
+11,TỈNH BẮC KẠN,11,backan,1945,0.0
+12,TỈNH THÁI NGUYÊN,12,thainguyen,4014,79.05
+13,TỈNH YÊN BÁI,13,yenbai,2289,94.26
+14,TỈNH SƠN LA,14,sonla,1483,97.32
+15,TỈNH PHÚ THỌ,15,phutho,2892,91.79
+16,TỈNH VĨNH PHÚC,16,vinhphuc,3698,82.63
+17,TỈNH QUẢNG NINH,17,quangninh,4777,80.63
+18,TỈNH BẮC GIANG,18,bacgiang,3450,85.66
+19,TỈNH BẮC NINH,19,bacninh,5445,0.0
+21,TỈNH HẢI DƯƠNG,21,haiduong,3693,0.0
+22,TỈNH HƯNG YÊN,22,hungyen,3843,0.0
+23,TỈNH HÒA BÌNH,23,hoabinh,2295,95.93
+24,TỈNH HÀ NAM,24,hanam,3608,0.0
+25,TỈNH NAM ĐỊNH,25,namdinh,3383,0.0
+26,TỈNH THÁI BÌNH,26,thaibinh,3547,0.0
+27,TỈNH NINH BÌNH,27,ninhbinh,3777,81.3
+28,TỈNH THANH HÓA,28,thanhhoa,3014,94.65
+29,TỈNH NGHỆ AN,29,nghean,2542,95.33
+30,TỈNH HÀ TĨNH,30,ha,2844,43.27
+31,TỈNH QUẢNG BÌNH,31,quangbinh,2666,92.37
+32,TỈNH QUẢNG TRỊ,32,quangtri,2542,96.32
+33,TỈNH THỪA THIÊN - HUẾ,33,thuathienhue,3084,91.84
+34,TỈNH QUẢNG NAM,34,quangnam,2905,93.89
+35,TỈNH QUẢNG NGÃI,35,quangngai,2899,97.4
+36,TỈNH KON TUM,36,kontum,2007,94.47
+37,TỈNH BÌNH ĐỊNH,37,binhdinh,3024,88.17
+38,TỈNH GIA LAI,38,gialai,2586,96.18
+39,TỈNH PHÚ YÊN,39,phuyen,2837,95.03
+40,TỈNH ĐẮK LẮK,40,daklak,2747,92.39
+41,TỈNH KHÁNH HÒA,41,khanhhoa,3455,87.86
+42,TỈNH LÂM ĐỒNG,42,lamdong,3640,88.07
+43,TỈNH BÌNH PHƯỚC,43,binhphuoc,3603,83.85
+44,TỈNH BÌNH DƯƠNG,44,binhduong,6823,10.47
+45,TỈNH NINH THUẬN,45,ninhthuan,2631,97.04
+46,TỈNH TÂY NINH,46,tayninh,4258,61.41
+47,TỈNH BÌNH THUẬN,47,binhthuan,3444,84.45
+48,TỈNH ĐỒNG NAI,48,dongnai,5299,57.73
+49,TỈNH LONG AN,49,longan,4215,0.0
+50,TỈNH ĐỒNG THÁP,50,dongthap,3499,0.0
+51,TỈNH AN GIANG,51,angiang,3559,80.76
+52,TỈNH BÀ RỊA - VŨNG TÀU,52,bariavungtau,4881,36.57
+53,TỈNH TIỀN GIANG,53,tiengiang,3983,0.0
+54,TỈNH KIÊN GIANG,54,kiengiang,3779,68.12
+55,THÀNH PHỐ CẦN THƠ,55,cantho,4371,33.36
+56,TỈNH BẾN TRE,56,bentre,3408,0.0
+57,TỈNH VĨNH LONG,57,vinhlong,3089,58.11
+58,TỈNH TRÀ VINH,58,travinh,2869,90.09
+59,TỈNH SÓC TRĂNG,59,soctrang,3652,91.44
+60,TỈNH BẠC LIÊU,60,baclieu,2699,63.38
+61,TỈNH CÀ MAU,61,camau,2986,24.89
+62,TỈNH ĐIỆN BIÊN,62,dienbien,1477,97.36
+63,TỈNH ĐĂK NÔNG,63,daknong,3029,90.15
+64,TỈNH HẬU GIANG,64,haugiang,3548,52.03

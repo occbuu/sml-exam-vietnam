@@ -1,0 +1,5 @@
+config,Biology,Chemistry,CivicEducation,English,Geography,History,Mathematics,Physics,Overall
+gemma2:9b | direct,0.71,0.625,0.8,0.864,0.61,0.745,0.488,0.59,0.679
+llama3.1:8b | direct,0.495,0.485,0.765,0.644,0.6,0.63,0.296,0.435,0.539
+qwen2.5:7b | direct,0.6,0.555,0.765,0.844,0.655,0.665,0.496,0.535,0.641
+random-baseline | direct,0.265,0.25,0.23,0.24,0.235,0.21,0.188,0.28,0.236

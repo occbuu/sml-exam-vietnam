@@ -1,0 +1,82 @@
+{
+  "recorded_utc": "2026-10-14T12:26:58.772513+00:00",
+  "ollama": {
+    "version": "0.40.4"
+  },
+  "models": [
+    {
+      "name": "qwen2.5:7b",
+      "model": "qwen2.5:7b",
+      "modified_at": "2026-10-14T19:17:27.5932615+07:00",
+      "size": 4683087332,
+      "digest": "845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e",
+      "details": {
+        "parent_model": "",
+        "format": "gguf",
+        "family": "qwen2",
+        "families": [
+          "qwen2"
+        ],
+        "parameter_size": "7.6B",
+        "quantization_level": "Q4_K_M",
+        "context_length": 32768,
+        "embedding_length": 3584,
+        "runner": "ggml"
+      },
+      "capabilities": [
+        "completion",
+        "tools"
+      ]
+    },
+    {
+      "name": "gemma2:9b",
+      "model": "gemma2:9b",
+      "modified_at": "2026-10-14T19:17:26.2445031+07:00",
+      "size": 5443152417,
+      "digest": "ff02c3702f322b9e075e9568332d96c0a7028002f1a5a056e0a6784320a4db0b",
+      "details": {
+        "parent_model": "",
+        "format": "gguf",
+        "family": "gemma2",
+        "families": [
+          "gemma2"
+        ],
+        "parameter_size": "9.2B",
+        "quantization_level": "Q4_0",
+        "context_length": 8192,
+        "embedding_length": 3584,
+        "runner": "ggml"
+      },
+      "capabilities": [
+        "completion"
+      ]
+    },
+    {
+      "name": "llama3.1:8b",
+      "model": "llama3.1:8b",
+      "modified_at": "2026-10-08T17:08:49.9971613+07:00",
+      "size": 4920753328,
+      "digest": "46e0c10c039e019119339687c3c1757cc81b9da49709a3b3924863ba87ca666e",
+      "details": {
+        "parent_model": "",
+        "format": "gguf",
+        "family": "llama",
+        "families": [
+          "llama"
+        ],
+        "parameter_size": "8.0B",
+        "quantization_level": "Q4_K_M",
+        "context_length": 131072,
+        "embedding_length": 4096,
+        "runner": "ggml"
+      },
+      "capabilities": [
+        "completion",
+        "tools"
+      ]
+    }
+  ],
+  "continuation_gpu": "NVIDIA RTX 5060 Ti 16 GB",
+  "legacy_gpu_reported_by_readme": "NVIDIA RTX 3050 6 GB",
+  "note": "Legacy response files do not contain model digests; these digests identify the local models available for the continuation, not independently verified provenance of prior responses."
+}

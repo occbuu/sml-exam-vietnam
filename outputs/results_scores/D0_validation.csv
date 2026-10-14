@@ -1,0 +1,30 @@
+subject,year,national_mean,source_note,mean,size,diff
+Mathematics,2019,5.64,VnExpress dẫn Bộ GDĐT (cần đối chiếu văn bản gốc),5.574,807762,-0.066
+Physics,2019,5.57,VnExpress dẫn Bộ GDĐT (cần đối chiếu),5.564,292166,-0.006
+Chemistry,2019,5.35,VnExpress dẫn Bộ GDĐT (cần đối chiếu),5.343,295544,-0.007
+Biology,2019,4.68,VnExpress dẫn Bộ GDĐT (cần đối chiếu),4.666,291199,-0.014
+History,2019,4.3,VnExpress dẫn Bộ GDĐT (cần đối chiếu),4.294,542729,-0.006
+Geography,2019,6.0,VnExpress dẫn Bộ GDĐT (cần đối chiếu),5.988,535897,-0.012
+CivicEducation,2019,7.37,VnExpress dẫn Bộ GDĐT (cần đối chiếu),7.354,470905,-0.016
+English,2019,4.36,VnExpress dẫn Bộ GDĐT (cần đối chiếu),4.241,728513,-0.119
+Mathematics,2020,6.68,VnExpress dẫn Bộ GDĐT (cần đối chiếu),6.662,866581,-0.018
+Physics,2020,6.72,VnExpress dẫn Bộ GDĐT (cần đối chiếu),6.718,293287,-0.002
+Chemistry,2020,6.71,VnExpress dẫn Bộ GDĐT (cần đối chiếu),6.705,295536,-0.005
+Biology,2020,5.59,VnExpress dẫn Bộ GDĐT (cần đối chiếu),5.588,290377,-0.002
+History,2020,5.19,VnExpress dẫn Bộ GDĐT (cần đối chiếu),5.181,568581,-0.009
+Geography,2020,6.78,VnExpress dẫn Bộ GDĐT (cần đối chiếu),6.773,555072,-0.007
+CivicEducation,2020,8.14,VnExpress dẫn Bộ GDĐT (cần đối chiếu),8.125,482980,-0.015
+English,2020,4.58,VnExpress dẫn Bộ GDĐT (cần đối chiếu),4.568,772098,-0.012
+Mathematics,2021,6.61,Báo chí dẫn Bộ GDĐT (cần đối chiếu); các môn khác 2021: TODO,6.617,924651,0.007
+Mathematics,2022,6.47,Báo chí dẫn Bộ GDĐT (cần đối chiếu),6.466,982670,-0.004
+Biology,2022,5.02,Báo chí dẫn Bộ GDĐT (cần đối chiếu),5.019,322185,-0.001
+History,2022,6.34,Báo chí dẫn Bộ GDĐT (cần đối chiếu),6.344,659617,0.004
+English,2022,5.15,Báo chí dẫn Bộ GDĐT (cần đối chiếu); các môn khác 2022: TODO,5.158,870571,0.008
+Mathematics,2023,6.25,Bộ GDĐT công bố 18/7/2023 (Đại biểu Nhân dân),6.251,1003373,0.001
+Physics,2023,6.57,Bộ GDĐT 18/7/2023,6.574,327189,0.004
+Chemistry,2023,6.74,Bộ GDĐT 18/7/2023,6.745,328118,0.005
+Biology,2023,6.39,Bộ GDĐT 18/7/2023,6.395,324625,0.005
+History,2023,6.03,Bộ GDĐT 18/7/2023,6.026,683447,-0.004
+Geography,2023,6.15,Bộ GDĐT 18/7/2023,6.148,682134,-0.002
+CivicEducation,2023,8.29,Bộ GDĐT 18/7/2023,8.286,565452,-0.004
+English,2023,5.45,Bộ GDĐT 18/7/2023,5.462,880997,0.012

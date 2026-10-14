@@ -1,0 +1,43 @@
+# Credentials and local environments
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# External datasets, candidate-level data and model responses
+data/raw/
+outputs/runs/
+outputs/archive*/
+outputs/*itembank*.csv
+outputs/hard_items_excluded.csv
+outputs/*.parquet
+*.jsonl
+*.sqlite*
+
+# Generated figures in the outputs folder (publication PDFs are tracked)
+outputs/**/*.png
+outputs/**/*.pdf
+
+# Build caches and TeX intermediates
+.latex-cache/
+**/.latex-cache/
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.run.xml
+*.spl
+*.synctex.gz
+*-SAVE-ERROR
+*.zip

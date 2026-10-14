@@ -1,0 +1,282 @@
+%% Paper 2 -- compile with:  latexmk -lualatex main.tex   (or Overleaf, compiler = LuaLaTeX)
+\documentclass[preprint,12pt,authoryear,nonatbib]{elsarticle}
+% APA 7 is the default. Define \APASix before inputting this file only for legacy builds.
+\ifdefined\APASix\else\def\APASeven{1}\fi
+\ifdefined\APASeven
+  \usepackage[english]{babel}
+  \usepackage{csquotes}
+  \usepackage[backend=biber,style=apa,natbib=true]{biblatex}
+  \addbibresource{refs.bib}
+\else
+  \usepackage[natbibapa]{apacite}
+\fi
+\usepackage{fontspec}            % Unicode (Vietnamese abstract) with LuaLaTeX/XeLaTeX
+\setmainfont{Latin Modern Roman}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx,booktabs,tabularx,multirow,makecell,float}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{xcolor,enumitem,setspace}
+\usepackage[hidelinks]{hyperref}
+\usepackage{lineno}
+\usepackage{microtype}
+\setlength{\emergencystretch}{1em}
+\onehalfspacing
+\newcommand{\tbd}[1]{\textcolor{red}{[#1]}}   % administrative details to be supplied by the authors
+\graphicspath{{figures/}}
+\journal{Computers and Education: Artificial Intelligence (target) / HNUE--UNESCO International Conference 2027}
+
+% Vietnamese abstract: keep for the HNUE conference version; set \vietnamesefalse for journal submission
+\newif\ifvietnamese
+\vietnamesetrue
+\begin{document}
+\begin{frontmatter}
+\title{Locally deployed small language models on a national high-stakes examination: Benchmarking against eight years of Vietnamese candidate scores}
+
+% Anonymous review draft. Supply verified author metadata on a separate title page.
+
+\begin{abstract}
+Generative AI challenges the security and validity of high-stakes examinations, but accuracy alone does not show how models compare with real candidates. We study Viet Nam's National High School Graduation Examination using five open sources: 1,700 official items from eight multiple-choice subjects (2019--2023); 383 presentations of 236 audited hard items; 7.29 million candidate records (2017--2024); official statistics for validation; and provincial socio-economic indicators. Three quantised open-weight models run locally through Ollama. We link their exam-score equivalents to national and provincial candidate distributions, analyse item-position and restricted-input associations, and test option-order and response-format sensitivity. Candidate means rose across the eight years, with marked ceiling effects in civic education and persistent provincial income gradients in mathematics and English. \input{results_text/abstract_llm} A fixed model score tends to rank higher against candidates in lower-income provinces in English and mathematics. These historical, text-only comparisons provide a baseline for evaluating examination reform and support repeated audits with complete stimuli, transparent grading and secure administration.
+\end{abstract}
+
+\begin{keyword}
+large language models \sep high-stakes assessment \sep national examination \sep local inference \sep assessment validity \sep educational equity \sep Viet Nam
+\end{keyword}
+\end{frontmatter}
+
+\ifvietnamese
+\noindent\textbf{Tóm tắt.} Trí tuệ nhân tạo tạo sinh hiện có thể trả lời nhiều câu hỏi thi chuẩn hóa. Điều này đe dọa tính hiệu lực và an ninh của các kỳ thi quan trọng, đồng thời đặt ra câu hỏi kỳ thi quốc gia nên đánh giá điều gì. Nghiên cứu kết hợp năm nguồn dữ liệu mở về kỳ thi tốt nghiệp THPT của Việt Nam: (i) 1.700 câu hỏi của 5 đề chính thức 2019--2023 thuộc 8 môn trắc nghiệm (VNHSGE); (ii) 383 lượt trình bày của 236 câu khó có đáp án số đơn kiểm tra được, với câu Toán trả lời số và câu Hóa/Lý ở cả hai dạng; (iii) 7,29 triệu bản ghi điểm thi cấp thí sinh giai đoạn 2017--2024; (iv) thống kê điểm do Bộ GDĐT công bố, dùng để kiểm định; và (v) chỉ số thu nhập và vùng dân tộc thiểu số cấp tỉnh. Nghiên cứu đánh giá ba mô hình ngôn ngữ lớn có trọng số mở, được lượng tử hóa và chạy local; xác định thứ hạng của từng mô hình trong phân phối điểm của thí sinh thật ở cấp quốc gia và cấp tỉnh; tìm các đặc điểm câu hỏi khiến AI trả lời sai; và kiểm tra hiện tượng nhiễm dữ liệu huấn luyện bằng cách xáo trộn phương án và đổi dạng câu hỏi. Dữ liệu thí sinh cho thấy điểm trung bình tăng trong tám năm khảo sát, hiệu ứng trần (tới 40\% thí sinh đạt từ 9 điểm môn GDCD), và chênh lệch theo thu nhập giữa các tỉnh ổn định ở môn Toán và Tiếng Anh. \input{results_text/abstract_vi_llm} Nghiên cứu thảo luận hàm ý cho đổi mới kỳ thi từ năm 2025: thiết kế câu hỏi bền vững trước AI, an ninh kỳ thi trước thiết bị tích hợp AI, công bằng giữa các tỉnh, và sử dụng LLM có trách nhiệm trong rà soát đề thi.
+\fi
+
+\linenumbers
+\section{Introduction}
+
+Large language models (LLMs) now reach or exceed the level of human test-takers on many standardised examinations, from professional licensing tests to university-entrance examinations \citep{openai2023gpt4,zhang2023m3exam}. For education systems this creates two problems. The first concerns \emph{security and validity}. A model on a phone can answer exam items in seconds, so an examination that cannot exclude such devices no longer measures what it claims to measure \citep{cotton2024}. The second concerns \emph{purpose}. If routine recall items can be answered by machines, a national examination that rewards such items also signals to teachers, through ``teaching to the test'' \citep{koretz2017}, that students should spend time on what machines already do well \citep{swiecki2022,unesco2023genai}.
+
+Viet Nam's National High School Graduation Examination is taken by about one million candidates each year and is used for both graduation and university admission. From 2017 to 2024 it consisted almost entirely of four-option multiple-choice items assembled according to a four-level cognitive matrix. From 2025 it follows the 2018 General Education Curriculum, with new item formats and an explicit emphasis on competencies \citep{moet2023plan}. The reform thus coincides with the arrival of generative AI. Earlier work introduced the VNHSGE benchmark and showed that ChatGPT approached human-level scores in language-heavy subjects but not in mathematics and the sciences \citep{dao2023vnhsge,dao2023math}. Three questions that matter for assessment policy remain open: (a) where current models stand \emph{relative to the real population of candidates}, not only relative to a national mean; (b) \emph{which recorded item characteristics} predict errors under a specified protocol; and (c) whether high accuracy reflects reasoning or \emph{memorisation} of widely published past papers.
+
+We address these questions with a multi-source design. We extend accuracy-based benchmarking by linking item-level model performance with eight years of candidate-level score data (7.29 million records), validated against official statistics, and with provincial socio-economic indicators. This lets us express AI performance in the metric that matters to students and policy makers, namely the percentile a candidate would reach, nationally and in each province. We ask:
+
+\begin{enumerate}[label=\textbf{RQ\arabic*.},leftmargin=*]
+  \item How accurately do the three locally deployed open-weight LLMs answer the examination, and what percentile would their scores reach among real Vietnamese candidates?
+  \item Which recorded item characteristics (position bands, omitted visual resources, notation and length) are associated with errors under the text-only direct-answer protocol?
+  \item Are LLM answers robust to option order and to the removal of options, or do they suggest memorisation?
+  \item How has the candidate score distribution evolved over 2017--2024, and how does the advantage an ``AI answer machine'' would confer differ across provinces with different socio-economic conditions?
+\end{enumerate}
+
+\section{Background}
+\subsection{LLMs on human examinations}
+Benchmarks built from human examinations, such as MMLU \citep{hendrycks2021mmlu}, AGIEval \citep{zhong2024agieval} and M3Exam \citep{zhang2023m3exam}, are now the standard way to compare LLMs. Performance is uneven: models do best in language-rich, recall-heavy domains and worst in multi-step quantitative reasoning and figure-dependent items. Performance in lower-resource languages lags behind English. For Vietnamese, the VNHSGE dataset compiled national examination papers with answer keys and explanations \citep{dao2023vnhsge}.
+
+\subsection{National entrance-examination benchmarks}
+Related national examinations help distinguish answering accuracy from educational interpretation. In China, GAOKAO-Bench evaluates objective and subjective questions across subjects and converts model performance to examination scores \citep{zhang2023gaokao}. GAOKAO-Eval subsequently examines recently released papers and uses Rasch analysis to question whether high scores imply human-aligned difficulty patterns \citep{lei2024gaokao}. The latter remains a preprint in the source record consulted here. These studies motivate explicit attention to item exposure and response processes, but their Chinese-language scores cannot be transferred directly to Vietnamese candidates.
+
+In Korea, a study of the 2026 CSAT mathematics examination evaluates models shortly after the public release of the paper, comparing input modalities and prompt languages \citep{pyeon2025csat}. This preprint illustrates a practical strategy for reducing exposure to the particular examination before testing. Freshness alone does not equate machine and human ability, and neither model rankings nor modality effects should be assumed constant across examination systems. Our retrospective S1 design provides a longer historical reference but offers weaker control over item exposure.
+
+Brazil's ENEM supplies a particularly relevant comparison for local inference: quantised LLaMA-based models were evaluated on Portuguese and translated English items using consumer hardware \citep{santos2023enem}. Subsequent ENEM word-problem research separates textual interpretation from equation solving, showing that these demands can produce different model performance patterns \citep{calais2025}. A 2026 preprint additionally benchmarks estimated difficulty against official ENEM IRT parameters \citep{brant2026enem}. These approaches distinguish three targets---answering items, modelling their demands and reproducing human difficulty---that should not be conflated. Our contribution is the linkage of observed model scores to national and provincial candidate distributions, while item-response calibration remains unavailable for S3.
+
+\subsection{Robustness and contamination}
+Multiple-choice accuracy may overstate competence. LLMs are sensitive to option order and favour particular option letters \citep{pezeshkpour2024,zheng2024mcq}. Past national papers and their keys are widely published online and may have been included in training data, so a model may \emph{recognise} rather than \emph{solve} items. Contamination is commonly probed by comparing performance on original and perturbed versions of the same item \citep{golchin2025}. We use two perturbations: shuffling the options, which leaves difficulty unchanged for humans, and removing the options so that the value must be produced (open format).
+
+\subsection{Assessment in the age of AI}
+Scholars argue that generative AI makes assessments that reward the reproduction of information obsolete. They call for authentic, process-oriented assessment and for explicit rules on permitted AI use \citep{swiecki2022,perkins2024aias}, while recognising that LLMs can also support item writing and feedback \citep{kasneci2023}. Most of this work concerns coursework in higher education. Evidence on invigilated national examinations in middle-income systems, which still determine life chances and shape teaching, is scarce. Item demand in the Vietnamese papers follows a four-level matrix adapted from the revised Bloom taxonomy \citep{anderson2001}: recognition, comprehension, application and high-level application.
+
+Recent reviews broaden this discussion beyond whether an answer is correct. A scoping review identifies replicability, transparency, privacy and equality as central challenges for educational LLM applications \citep{yan2024}; another organises assessment implications at student, teacher and institutional levels \citep{xia2024assessment}. From an educational-measurement perspective, deploying generative models raises questions about reliability, fairness and test security alongside efficiency \citep{hao2024}. Work on validity and evaluative judgement further argues for evidence about the knowledge demonstrated and the learner's ability to judge the quality of AI outputs \citep{kaldaras2024,bearman2024}. These concerns inform our separation of candidate-relative ranks from claims about competence or actual gains from assistance.
+
+\subsection{Security and ethical safeguards}
+Empirical studies make clear that assessment design and detection are separate issues. AI-written submissions entered an unsupervised university examination system with many going undetected \citep{scarfe2024}; a study in two UK business schools also investigates the academic-integrity implications for authentic assessments \citep{kofinas2025}. Neither setting estimates cheating prevalence in an invigilated national examination. Teacher judgements of essay authorship and software detection also have documented limitations \citep{fleckenstein2024,weberwulff2023}, with evidence of unequal false-positive risks for non-native English writers \citep{liang2023}. These writing studies do not validate detection of AI-assisted multiple-choice responses and therefore cannot justify automatic accusations based on this benchmark.
+
+For large-scale examinations, safeguards must address the entire testing process. International Test Commission guidelines cover security planning, administration and responses to breaches \citep{itc2014security}; the educational and psychological testing standards connect defensible score use with validity and fairness \citep{aera2014}. Applied here, a model-capability audit is one source of evidence for planning controls on unauthorised assistance and item exposure, rather than a replacement for invigilation or incident investigation. A responsible policy also distinguishes prohibited examination assistance from legitimate learning support, specifies permitted resources and retains human review of consequential decisions. This combination connects the international literature to the present local-model and provincial-distribution design.
+
+\subsection{Interpretation and use of model scores}
+Kane's argument-based framework distinguishes scoring, generalisation, extrapolation and the justification of score uses \citep{kane2013}. Here, answer-key grading supports a scoring inference for the observed model responses. Generalisation is limited to the sampled papers, model binaries, quantisation and prompts. Extrapolation from correct answers to the intended student competence is not established: a machine may produce the same answer through a different process, and withheld stimuli change the task. Candidate percentiles provide a historical reference distribution, not evidence of equivalent latent ability. The decision inference concerning graduation or admission would require evidence about permitted assistance, secure administration and consequences; this benchmark does not supply that evidence. We therefore treat AI resilience as conditional on the model, input access and administration conditions, rather than an intrinsic property established by low model accuracy.
+
+An item-response framework would additionally distinguish difficulty, discrimination and lower-asymptote parameters \citep{lord1974}. The theoretical four-option guessing probability is 0.25, but it is not an estimated item-specific IRT parameter. S3 contains total subject scores, not candidate item responses; it cannot identify item difficulties, calibrate an IRT model, or test differential item functioning between humans and models. Provincial rank differences are distributional comparisons, not DIF. The position bands are exploratory descriptors and must not substitute for those psychometric quantities. Multimodal benchmarks such as MathVista further show why complete visual stimuli are necessary when studying mathematical competence \citep{lu2024mathvista}.
+
+\section{Data}
+Table~\ref{tab:sources} summarises the five open data sources. All are publicly downloadable without registration; the code and download scripts are provided (Section~\ref{sec:availability}).
+
+\begin{table}[H]\centering\small
+\caption{Data sources}\label{tab:sources}
+\begin{tabularx}{\textwidth}{@{}l>{\raggedright}p{3.8cm}X@{}}
+\toprule
+\# & Source & Content and use\\
+\midrule
+S1 & VNHSGE evaluation set \citep{dao2023vnhsge} & Official 2019--2023 papers, 8 MCQ subjects, 1,700 items with keys and images. LLM benchmark (RQ1--RQ3).\\
+ S2 & Vietnamese Entrance Exam \citep{iithought2025} & Audited scalar-answer subset: 89 mathematics items with paper year (2017--2024); 89 chemistry and 58 physics items with options, each shown twice. MCQ vs open format; exploratory year comparison (RQ3).\\
+S3 & Candidate-level scores 2017--2024 \citep{thptqgscores} & 7,287,744 records (registration number, province, subject scores; no names). Human benchmark and provincial analysis (RQ1, RQ4).\\
+S4 & MOET published score statistics \citep{moet2023scores} & National means by subject and year. Validation of S3.\\
+S5 & Provincial indicators \citep{odm2018income,odm2015ethnic} & Income per capita 2018 (GSO/VHLSS) and population of ethnic-minority areas 2015, 63 provinces. Equity analysis (RQ4).\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{Item banks} Table~\ref{tab:itembank} describes S1. Ninety-seven items require an image (mostly mathematics and physics). Sixty-eight geography items (34\%) require the printed \emph{Atlat Địa lí Việt Nam}, which candidates bring into the examination room but which is not part of the item. We use these items as an ``external resource omitted'' condition. Answer keys over-represent option A (29.9\%), so we also report models' answer-letter distributions. S2 is a curated difficult-item dataset, with some stems reformulated by its provider; it is not a second representative sample of complete examination papers. Of the 432 source records, we retain 236 Vietnamese items whose released answers are complete decimal scalars and, for chemistry and physics, have exactly one numerically matching option. Symbolic expressions, fractions, multi-value answers and items without an unambiguous option match are excluded rather than reduced to their first number. The resulting 383 presentations comprise 89 mathematics items in open format, and 89 chemistry plus 58 physics items each shown with and without options (Table~\ref{tab:hard}). Mathematics years come from source labels; chemistry and physics years are unavailable. An exclusion log accompanies the code. This conservative restriction makes numerical grading reproducible but limits generalisation to other hard-item answer types.
+
+\begin{table}[H]\centering\small
+\caption{S1 item bank: official examinations 2019--2023}\label{tab:itembank}
+\input{tables/tab_itembank}
+\par\smallskip\raggedright\footnotesize\textit{Note.} LaTeX counts items containing formula markup; it indicates notation presence, not a validated measure of mathematical or chemical complexity. Image and atlas counts identify resources omitted from model inputs.
+\end{table}
+
+\begin{table}[H]\centering\small
+\caption{S2 hard item set (presentations by format)}\label{tab:hard}
+\input{tables/tab_hard}
+\end{table}
+
+\paragraph{Candidate scores and validation} S3 is a third-party mirror of publicly accessible examination results. The repository's documentation and accompanying crawler artifacts identify Vietnamese news-media results portals, including Dan Tri (the documented 2022 collector) and VietNamNet (the accompanying 2021 notebook), as collection sources \citep{thptqgscores}. We cross-check the mirrored scores against MOET's published national means as an aggregate data-integrity check (Table~\ref{tab:validation}). These artifacts document collection routes but do not provide a complete per-year lineage for all eight CSV files; agreement of means does not certify completeness or the integrity of every record. It contains each candidate's registration number, province code and subject scores, without names; we analyse only aggregates. Coverage is incomplete in three years: in 2017 records for Ha Noi and Ho Chi Minh City are capped at 64,999; 2018 covers 59 provinces (Son La missing; Ha Noi and Ha Giang partial); and 2019 lacks Ho Chi Minh City. National means nevertheless reproduce MOET's published means to within $\pm0.02$ points in 27 of 29 subject-years with published values; the largest deviations are $-0.12$ (English 2019) and $-0.07$ (mathematics 2019), where Ho Chi Minh City is missing (Table~\ref{tab:validation} in the Appendix).
+
+\section{Method}
+\subsection{Models and procedure}
+We evaluate three open-weight instruction models, Qwen2.5-7B, Llama-3.1-8B and Gemma-2-9B \citep{qwen2025,llama2024,gemma2024}, and a seeded random-guessing baseline. The models run locally through Ollama with four-bit quantisation (Q4\_K\_M for Qwen and Llama; Q4\_0 for Gemma). The continuation used a 4,096-token runtime context; the model manifest records full local digests and Ollama version. Digests were not logged with the legacy responses, so their exact binary provenance cannot be independently established. Initial S1 responses were collected on an RTX 3050 with 6\,GB VRAM; the remaining Gemma responses and the S2 experiment were completed on an RTX 5060 Ti with 16\,GB VRAM in October 2026. The study evaluates these specific model versions, rather than frontier AI capability in general. Each S1 item was presented in Vietnamese with a fixed system prompt, temperature 0 and a maximum of eight output tokens, requesting a single answer letter. Qwen2.5-7B was additionally evaluated on S2 with a brief step-by-step reasoning prompt and a final answer line (up to 900 output tokens). No images or atlas pages were supplied, so all results concern text-only access to the released item content. The image and atlas conditions are information-deprivation conditions; they do not estimate multimodal performance. The eight-token direct-answer cap provides no scratchpad and can disadvantage quantitative reasoning. Because S2 changes both the item sample and the prompting protocol, S1--S2 contrasts cannot estimate the causal effect of reasoning prompts. Single-pass temperature-zero decoding also does not quantify run-to-run or backend variability; Wilson intervals are not decoding-repeat confidence intervals. Open-format answers were graded numerically with a 1\% relative tolerance plus $10^{-6}$ absolute tolerance; unparseable answers counted as incorrect. Raw responses, token counts and latencies were logged. The baseline uses a fixed pseudo-random seed and is a realised draw rather than the theoretical 25\% chance rate.
+
+\subsection{Cognitive level, item features and contamination probes}
+We assign an exploratory position-based proxy from each S1 item's relative position, using a 40/30/20/10 split to approximate recognition, comprehension, application and high-level application. This assumes that later items generally impose greater demand; it is not an expert-coded Bloom classification. Independent teacher validation has not been conducted, and no inter-rater reliability coefficient is available. For each model we fit a logistic regression of correctness on this proxy, image dependence, LaTeX notation, $\log$(item length) and subject fixed effects. These associations are descriptive rather than causal. For RQ3, every S1 item was presented a second time, attempting to permute its options using an item-specific seed. Seventeen option sets could not be parsed safely and retained their original order; 62 seeded permutations were the identity. We report the full paired comparison and a sensitivity analysis restricted to the 1,621 actually changed presentations. Paired accuracy was compared with McNemar's exact test \citep{mcnemar1947}. The S2 chemistry and physics items were presented in both MCQ and open format; mathematics was analysed by recorded paper year (2017--2024). Option-order robustness and format sensitivity probe response behaviour but cannot establish whether an item appeared in training data. The year analysis is exploratory because neither exposure histories nor matched item difficulty across years are known.
+
+\subsection{Placing models among candidates}
+Each paper weights items equally, so a model's exam-score equivalent is $10\times$ its proportion correct. Using S3, we compute for every subject-year the percentage of candidates scoring strictly below each score on a 0.05 grid (the national percentile), and the same percentage within each province with at least 300 valid subject scores. Tied candidate scores are excluded from the percentage below. Subject-level summaries average the five paper-year percentiles, rather than pooling different examinations into one distribution. The provincial summary describes province--subject--year comparisons, rather than the percentage of distinct provinces. We relate provincial percentiles to income (S5) using descriptive correlations. Accuracies are reported with Wilson intervals \citep{wilson1927}; these quantify item-level binomial uncertainty and do not account for common paper or stimulus dependence.
+
+\subsection{Eight years of candidate scores}
+For RQ4 we describe the score distributions by subject and year (mean, deciles, share of scores $\geq 9$), compute the spread of provincial means between provinces, and estimate the income gradient of provincial means each year with a weighted regression (weights = number of candidates; HC1 errors): provincial mean on $\log$ income, controlling for the ethnic-minority-area population share.
+
+\section{Results}
+\subsection{Eight years of candidate performance (S3--S5)}
+Table~\ref{tab:decade} and Figure~\ref{fig:decade} summarise 7.29 million candidate records. Mean scores rose in every subject between 2017 and 2024, most in history (4.60 to 6.57) and literature (5.50 to 7.23). Mathematics rose from 5.18 to a peak of 6.66 in 2020 and settled at 6.45. The share of top scores varied strongly with the paper: in civic education 13.0\% of candidates scored at least 9 in 2017, 40.0\% in 2021 and 27.1\% in 2024. This ceiling limits the examination's ability to discriminate among strong candidates. Differences between provinces were large and closely tied to income in the two compulsory MCQ subjects (Table~\ref{tab:inequality}, Figure~\ref{fig:gradient}). Each log-unit of provincial income was associated with 0.67--0.98 points in mathematics and 1.16--1.67 points in English, and income and ethnic-minority-area share explained 55--67\% and 64--77\% of the provincial variance respectively, in every year. The mathematics gradient narrowed slightly (0.98 in 2017; 0.72 in 2024), whereas the English gradient did not. In the elective science subjects, the income gradient disappeared after 2020, a pattern that could reflect candidate selection into subject combinations, although this explanation cannot be tested with the available covariates.
+
+\begin{table}[H]\centering\footnotesize
+\caption{Candidate scores by subject, 2017--2024 (S3)}\label{tab:decade}
+\input{tables/tab_decade}
+\end{table}
+
+\begin{figure}[H]\centering
+\includegraphics[width=\textwidth]{FigD1_decade_distributions.pdf}
+\caption{Candidate score distributions 2017--2024: mean, share of scores $\geq 9$, spread of provincial means, and share of scores below 5.}\label{fig:decade}
+\end{figure}
+
+\begin{table}[H]\centering\footnotesize
+\caption{Income gradient of provincial mean scores (points per log-unit of income; SE in parentheses below coefficients) and $R^2$ of the provincial model}\label{tab:inequality}
+\input{tables/tab_inequality}
+\end{table}
+
+\begin{figure}[H]\centering
+\includegraphics[width=.95\textwidth]{FigD2_income_gradient.pdf}
+\caption{Income gradient of provincial mean scores by subject and year (95\% CI).}\label{fig:gradient}
+\end{figure}
+
+\subsection{LLM accuracy and percentile among candidates (RQ1)}
+\input{results_text/accuracy}
+
+\begin{table}[H]\centering\footnotesize
+\caption{Accuracy (\%) by model and subject, S1 (1,700 items, original option order, direct answers)}\label{tab:llmacc}
+\input{tables/tab_llm_acc}
+\end{table}
+
+\begin{figure}[H]\centering
+\includegraphics[width=.95\textwidth]{F1_heatmap_accuracy.pdf}
+\caption{Accuracy by model and subject.}\label{fig:heat}
+\end{figure}
+
+\begin{table}[H]\centering\footnotesize
+\caption{Mean national percentile of each model's exam-score equivalent (five paper years, 2019--2023), and mean share of province--year comparisons above the 50th percentile across eight subjects}\label{tab:llmpct}
+\input{tables/tab_llm_percentile}
+\end{table}
+
+\begin{figure}[H]\centering
+\includegraphics[width=.85\textwidth]{F3_llm_vs_national.pdf}
+\caption{LLM exam-score equivalent vs the national mean of candidates, by subject and year.}\label{fig:llmnat}
+\end{figure}
+
+\subsection{Item-feature associations under restricted input access (RQ2)}
+\input{results_text/features}
+
+\begin{table}[H]\centering\footnotesize
+\caption{Accuracy (\%) by unvalidated position proxy and item type}\label{tab:llmlevel}
+\input{tables/tab_llm_level}
+\par\smallskip\raggedright\footnotesize\textit{Note.} R = recognition; C = comprehension; A = application; AA = advanced application (Vietnamese matrix labels NB, TH, VD, VDC, respectively). These labels describe the intended examination matrix, inspired by Bloom's taxonomy; the 40/30/20/10 position split does not establish actual cognitive levels. Images and atlas pages were withheld.
+\end{table}
+
+\begin{figure}[H]\centering
+\includegraphics[width=.8\textwidth]{F2_accuracy_by_level.pdf}
+\caption{Accuracy by cognitive level (position proxy; 95\% Wilson CI).}\label{fig:level}
+\end{figure}
+
+\subsection{Robustness and contamination (RQ3)}
+\input{results_text/robustness}
+
+\begin{table}[H]\centering\footnotesize
+\caption{Accuracy (\%) with original vs shuffled options (paired by item)}\label{tab:llmshuffle}
+\input{tables/tab_llm_shuffle}
+\end{table}
+
+\subsection{Who gains most from an ``AI answer machine''? (RQ4)}
+\input{results_text/equity}
+
+\section{Discussion}
+\paragraph{What the examination rewards} The results show partial, subject-specific automation of past examination content by modest local models. Candidate scores in civic education cluster near the ceiling, so model accuracy must be interpreted against that compressed distribution. English can offer a large relative advantage without near-perfect model accuracy. Linking model scores to contemporaneous candidate distributions therefore changes the policy interpretation of an accuracy-only benchmark. These comparisons describe the historical score scale; rising candidate means cannot be interpreted as improved learning without equating the papers across years.
+
+\paragraph{Security and equity} Local execution demonstrates that answering these items does not require a commercial API or an internet connection during inference. However, a desktop GPU benchmark does not establish performance on a concealed device in an examination room, and neither cheating prevalence nor actual admission advantages are measured here. The provincial gradients indicate where a fixed model score would rank relatively higher, conditional on the historical distributions. They do not imply that poorer candidates have greater access to AI or would gain more from its use. Examination security and equitable access to legitimate learning support should be addressed together, with attention to offline-capable devices and item exposure.
+
+\paragraph{Design implications} Later-position quantitative tasks and the hard numeric subset help locate weaknesses of these model versions, but no item type can be declared permanently AI-resilient. In particular, poor performance on image-dependent items when images were withheld is an input-access limitation, not evidence that modern multimodal AI cannot solve those items. Examination boards should audit complete stimuli with both text and vision models, use new contextualised multi-step tasks, and check whether changing the response format improves the evidence of candidate competence. Our study provides a pre-reform reference for the 2025 changes; it does not evaluate the new true/false or short-answer formats directly. Classroom and performance assessments can complement secure examinations with explicit expectations about permitted AI use \citep{perkins2024aias}.
+
+\paragraph{Responsible item review} These locally deployed models can serve as additional reviewers that flag readily automated items, missing stimuli and option-order sensitivity. This requires secure infrastructure and expert adjudication: a model's failure is not itself evidence of a defective question, and agreement among models does not validate an answer key. The numerical-answer audit in S2 also shows why benchmark construction and grading deserve the same scrutiny as model selection. Repeated evaluations of newly released papers and larger, multimodal models would make this approach more useful for examination design.
+
+\paragraph{Limitations} S1 covers one official paper per subject-year in the pre-2025 format, while S2 is a selected, partly reformulated hard-item subset restricted to decimal answers. The cognitive-level proxy has not been independently validated. Text-only evaluation omits images and the atlas. Results use one deterministic response per condition, one shuffle per item and one reasoning model for S2; they do not measure variation across prompt wording, quantisation or repeated decoding. Output limits and strict numeric parsing can lower measured accuracy. No frontier or multimodal model was tested, and robustness does not rule out training-data exposure. S3 has incomplete coverage in 2017--2019; agreement of national means with official statistics does not establish complete coverage or validate distribution tails. Provincial indicators are cross-sectional (2015, 2018), and ecological associations cannot explain individual inequalities. Percentiles refer to historical candidates who did not necessarily face the same input restrictions as the models. Results describe the specified model versions evaluated in October 2026, rather than the full capability of AI available at that time.
+
+\section{Conclusion}
+\input{results_text/conclusion}
+
+\section*{Data and code availability}\label{sec:availability}
+All five source repositories are publicly accessible (Table~\ref{tab:sources}). The local reproducibility package contains download and analysis scripts, prompts, raw model outputs, the continuation model manifest and exclusion logs. A persistent public release of this package has not yet been deposited. Individual candidate records are analysed only in aggregate and are not redistributed. The candidate-score repository is a third-party mirror; its account identifier is recorded for provenance without assigning an unverified personal identity or attributing this mirror to MOET.
+
+\section*{Declaration of generative AI use}
+LLMs are the object of study. OpenAI Codex was also used to assist with code review, the local experiment workflow, numerical-grading checks, manuscript drafting and LaTeX editing. The authors must review the resulting code, analyses and text and take responsibility for the submitted manuscript.
+
+\ifdefined\APASeven
+  \printbibliography
+\else
+  \bibliographystyle{apacite}
+  \bibliography{refs}
+\fi
+
+\appendix
+\renewcommand{\theHtable}{\Alph{section}.\arabic{table}}
+\section{Validation of candidate-level scores}
+\setcounter{table}{0}
+\begin{table}[H]\centering\footnotesize
+\caption{National means from S3 vs MOET published means}\label{tab:validation}
+\input{tables/tab_validation}
+\end{table}
+
+\section{Hard-item response-format results}
+\setcounter{table}{0}
+\begin{table}[H]\centering\footnotesize
+\caption{Qwen2.5-7B with brief reasoning on audited S2 items; 95\% Wilson intervals (\%)}\label{tab:hardresults}
+\input{tables/tab_hard_results}
+\end{table}
+
+\begin{table}[H]\centering\footnotesize
+\caption{Paired MCQ--open contrasts for Qwen2.5-7B; McNemar exact tests}\label{tab:hardgap}
+\input{tables/tab_hard_gap}
+\end{table}
+
+\begin{table}[H]\centering\footnotesize
+\caption{Qwen2.5-7B open-format mathematics accuracy by recorded paper year; 95\% Wilson intervals (\%)}\label{tab:hardyear}
+\input{tables/tab_hard_year}
+\end{table}
+
+\section{Option-order sensitivity on changed presentations}
+\setcounter{table}{0}
+\begin{table}[H]\centering\footnotesize
+\caption{Option-order comparison restricted to 1,621 items whose order actually changed (17 unparseable option sets and 62 identity permutations excluded)}\label{tab:shufflechanged}
+\input{tables/tab_shuffle_changed}
+\end{table}
+
+\section{Candidate-coverage sensitivity}
+\setcounter{table}{0}
+National percentile summaries were recalculated after excluding 2019, the only S1 paper year with documented incomplete candidate coverage. For Gemma 2 (9B), English changes from 91.8 to 90.5 and mathematics from 21.4 to 24.8. The strong subject contrast persists; across the three models and eight subjects, changes range from $-7.6$ to $+7.2$ percentage points. This is a different-year sensitivity analysis, not a correction of the missing 2019 candidates: paper difficulty and cohort composition also change. The incomplete 2017--2018 data still affect the descriptive eight-year trends.
+\begin{table}[H]\centering\footnotesize
+\caption{Mean national percentiles including and excluding the incomplete 2019 candidate cohort}\label{tab:coverage}
+\input{tables/tab_coverage_sensitivity}
+\end{table}
+
+\end{document}
+

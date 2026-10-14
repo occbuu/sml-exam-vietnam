@@ -1,0 +1,6 @@
+config,A,B,C,D
+gemma2:9b | direct,0.234,0.265,0.312,0.189
+llama3.1:8b | direct,0.142,0.184,0.473,0.201
+qwen2.5:7b | direct,0.285,0.301,0.229,0.185
+random-baseline | direct,0.255,0.242,0.242,0.26
+KEY (gold),0.299,0.248,0.239,0.214
