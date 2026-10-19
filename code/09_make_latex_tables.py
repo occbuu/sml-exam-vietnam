@@ -1,9 +1,12 @@
 """Write LaTeX tables for Paper 2 from the result CSVs (no hand-copied numbers).
-Each file is a complete tabular environment, included with an input command outside the tabular."""
+Each file is a complete tabular environment, included with an input command outside the tabular.
+Item-bank tables are written only when the local banks are present; the public package regenerates
+the score, accuracy, regression and letter tables from the released aggregates."""
 import shutil
 from pathlib import Path
 
 import pandas as pd
+from statsmodels.stats.proportion import proportion_confint
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "outputs"
@@ -29,23 +32,24 @@ def w(name, rows):
     (TEX / "tables" / f"{name}.tex").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-# S1 item bank
-ib = pd.read_csv(OUT / "itembank_eval.csv")
-g = ib.groupby("subject").agg(items=("id", "size"), per=("n_items", "first"), img=("has_image", "sum"),
-                              atlas=("atlas", "sum"), latex=("has_latex", "sum"), length=("q_len", "mean"))
-rows = []
-for s in [x for x in SUBJ if x in g.index]:
-    r = g.loc[s]
-    atlas = str(int(r.atlas)) if r.atlas else "--"
-    rows.append(f"{LAB.get(s, s)} & {int(r['items']):,} & {int(r.per)} & {int(r.img)} & {atlas} & {int(r.latex)} & {r.length:.0f}" + NL)
-t = g.sum()
-rows += [r"\midrule", f"Total & {int(t['items']):,} & & {int(t.img)} & {int(t.atlas)} & {int(t.latex)} &" + NL]
-w("tab_itembank", rows)
-
-# S2 hard set
-hard = pd.read_csv(OUT / "itembank_hard.csv")
-h = hard.groupby(["subject", "format"]).size().unstack(fill_value=0)
-w("tab_hard", [f"{s} & {int(h.loc[s].get('mcq', 0))} & {int(h.loc[s].get('open', 0))}" + NL for s in h.index])
+# S1 item bank and S2 hard set require local derived banks, which are not in the public package.
+if (OUT / "itembank_eval.csv").exists() and (OUT / "itembank_hard.csv").exists():
+    ib = pd.read_csv(OUT / "itembank_eval.csv")
+    g = ib.groupby("subject").agg(items=("id", "size"), per=("n_items", "first"), img=("has_image", "sum"),
+                                  atlas=("atlas", "sum"), latex=("has_latex", "sum"), length=("q_len", "mean"))
+    rows = []
+    for s in [x for x in SUBJ if x in g.index]:
+        r = g.loc[s]
+        atlas = str(int(r.atlas)) if r.atlas else "--"
+        rows.append(f"{LAB.get(s, s)} & {int(r['items']):,} & {int(r.per)} & {int(r.img)} & {atlas} & {int(r.latex)} & {r.length:.0f}" + NL)
+    t = g.sum()
+    rows += [r"\midrule", f"Total & {int(t['items']):,} & & {int(t.img)} & {int(t.atlas)} & {int(t.latex)} &" + NL]
+    w("tab_itembank", rows)
+    hard = pd.read_csv(OUT / "itembank_hard.csv")
+    h = hard.groupby(["subject", "format"]).size().unstack(fill_value=0)
+    w("tab_hard", [f"{s} & {int(h.loc[s].get('mcq', 0))} & {int(h.loc[s].get('open', 0))}" + NL for s in h.index])
+else:
+    print("item banks absent; existing S1/S2 bank tables left unchanged")
 
 # Decade of candidate scores
 d1 = pd.read_csv(OUT / "results_scores/D1_distribution_by_subject_year.csv")
@@ -65,12 +69,12 @@ v = pd.read_csv(OUT / "results_scores/D0_validation.csv").dropna(subset=["mean"]
 w("tab_validation", [f"{LAB.get(r.subject, r.subject)} & {r.year} & {r.national_mean:.2f} & {r['mean']:.2f} & {r['diff']:+.2f} & {int(r['size']):,}" + NL
                      for _, r in v.iterrows()])
 
-# Provincial income gradient
+# Provincial income gradient for every MCQ subject reported in the manuscript.
 ine = pd.read_csv(OUT / "results_scores/D3_provincial_inequality.csv")
 rows = []
-for s in ["Mathematics", "English", "Physics", "History"]:
+for s in ["Mathematics", "English", "Physics", "Chemistry", "Biology", "History", "Geography", "CivicEducation"]:
     q = ine[ine.subject == s].set_index("year")
-    rows.append(f"{s} & " + " & ".join(r"\makecell[r]{" + f"{q.loc[y, 'b_log_income']:.2f}" + r" \\ "
+    rows.append(f"{LAB.get(s, s)} & " + " & ".join(r"\makecell[r]{" + f"{q.loc[y, 'b_log_income']:.2f}" + r" \\ "
                                        + f"({q.loc[y, 'se_log_income']:.2f})" + "}" for y in years) + NL)
     rows.append(r"\quad $R^2$ & " + " & ".join(f"{q.loc[y, 'r2']:.2f}" for y in years) + NL)
 w("tab_inequality", rows)
@@ -96,13 +100,33 @@ def w2(name, spec, head, rows):
     (TEX / "tables" / f"{name}.tex").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+def wilson_cell(acc, lo, hi):
+    return r"\makecell[r]{" + f"{100 * acc:.1f}" + r" \\ \scriptsize(" + f"{100 * lo:.1f}--{100 * hi:.1f}" + ")}"
+
+
+def p_text(p):
+    return "<0.001" if p < 0.001 else f"{p:.3f}"
+
+
 if (RES / "T1_accuracy_by_subject.csv").exists():
     t1 = pd.read_csv(RES / "T1_accuracy_by_subject.csv")
     wide = pd.read_csv(RES / "T1_accuracy_wide.csv").set_index("config")
     order = sorted(wide.index, key=lambda c: (c.startswith("random"), -wide.loc[c, "Overall"]))
+
+    def accuracy_row(config):
+        sub = t1[t1.config == config].set_index("subject")
+        cells = []
+        for s in SUBJ8:
+            r = sub.loc[s]
+            cells.append(wilson_cell(r.acc, r.lo, r.hi))
+        k = int(round(float((sub.acc * sub.n).sum())))
+        n = int(sub.n.sum())
+        lo, hi = proportion_confint(k, n, method="wilson")
+        cells.append(wilson_cell(k / n, lo, hi))
+        return cfg_label(config) + " & " + " & ".join(cells) + NL
+
     w2("tab_llm_acc", "@{}l" + "r" * 9 + "@{}", ["Model & " + " & ".join(SHORT[s] for s in SUBJ8) + " & Overall" + NL],
-       [cfg_label(c) + " & " + " & ".join(f"{100 * wide.loc[c, s]:.1f}" for s in SUBJ8) + f" & {100 * wide.loc[c, 'Overall']:.1f}" + NL
-        for c in order])
+       [accuracy_row(c) for c in order])
     t3 = pd.read_csv(RES / "T3_accuracy_by_level.csv").pivot(index="config", columns="level", values="acc")
     t7 = pd.read_csv(RES / "T7_accuracy_by_item_type.csv").pivot(index="config", columns="item_type", values="acc")
     cols7 = [c for c in ["text", "table/chart", "image", "atlas (not provided)"] if c in t7.columns]
@@ -128,6 +152,33 @@ if (RES / "T1_accuracy_by_subject.csv").exists():
     w2("tab_llm_percentile", "@{}l" + "r" * 9 + "@{}",
        ["Model & " + " & ".join(SHORT[s] for s in SUBJ8) + r" & Prov.\,$>$\,median (\%)" + NL],
        [cfg_label(c) + " & " + " & ".join(f"{hp.loc[c, s]:.1f}" for s in SUBJ8) + f" & {h2m.loc[c]:.1f}" + NL for c in order])
+    logit = pd.read_csv(RES / "T4_logit_item_features.csv")
+    logit_models = [c for c in order if c in set(logit.config) and not c.startswith("random")]
+    terms = [
+        ("C(level)[T.2_TH]", "Position band 2 (C vs R)"),
+        ("C(level)[T.3_VD]", "Position band 3 (A vs R)"),
+        ("C(level)[T.4_VDC]", "Position band 4 (AA vs R)"),
+        ("img", "Image-dependent (withheld)"),
+        ("latex", "LaTeX notation present"),
+        ("log_len", r"$\log(\text{item length})$"),
+    ]
+    indexed = logit.set_index(["config", "term"])
+
+    def or_cell(config, term):
+        r = indexed.loc[(config, term)]
+        return f"{r.OR:.2f} ({r.lo:.2f}--{r.hi:.2f}; {p_text(r.p)})"
+
+    w2("tab_logit", "@{}l" + "r" * len(logit_models) + "@{}",
+       ["Predictor (adjusted for subject FEs) & " + " & ".join(cfg_label(c) for c in logit_models) + NL],
+       [label + " & " + " & ".join(or_cell(c, term) for c in logit_models) + NL for term, label in terms])
+    letters = pd.read_csv(RES / "T8_answer_letter_distribution.csv")
+    letter_order = ["KEY (gold)"] + [c for c in order if c in set(letters.config)]
+    letter_label = {"KEY (gold)": "Official answer key (S1)"}
+    by_cfg = letters.set_index("config")
+    w2("tab_letters", "@{}lrrrr@{}",
+       [r"Source / model & Option A (\%) & Option B (\%) & Option C (\%) & Option D (\%)" + NL],
+       [letter_label.get(c, cfg_label(c)) + " & " + " & ".join(f"{100 * by_cfg.loc[c, col]:.1f}" for col in "ABCD") + NL
+        for c in letter_order])
     for f in ["F2_accuracy_by_level.png", "F3_llm_vs_national.png", "F1_heatmap_accuracy.png"]:
         shutil.copy(RES / f, TEX / "figures" / f)
     print("LLM tables written:", ", ".join(cfg_label(c) for c in order))

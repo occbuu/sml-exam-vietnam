@@ -2,7 +2,7 @@
 
 Public-release note: paths to saved Crossref/arXiv records and S3 crawler artifacts below refer to the authors' working package. Those downloaded snapshots and notebooks are not bundled in this GitHub folder. The primary source links remain available; no candidate-level crawler output is redistributed here.
 
-48 bibliography entries; all 48 are cited. The revision adds 18 relevant sources and integrates them into the Background. Preprints are explicitly labelled and are not described as Q1 journal articles.
+52 bibliography entries; all 52 are cited. The 15 October revision adds 18 relevant sources and integrates them into the Background. The 19 October manuscript adds four further sources used in the revised validity, security and prompting paragraphs: `messick1995`, `dawson2021`, `alfaraby2024` and `wei2022cot`. Preprints are explicitly labelled and are not described as Q1 journal articles.
 
 | Added key | Primary evidence | Role |
 |---|---|---|

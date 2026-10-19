@@ -1,4 +1,8 @@
-# Sửa theo báo cáo phản biện — cập nhật 15/10/2026
+# Sửa theo báo cáo phản biện — cập nhật 19/10/2026
+
+Bản mã công khai được chỉnh cho khớp manuscript 19/10. Gradient thu nhập tỉnh được xuất cho đủ tám môn trắc nghiệm. Bảng độ chính xác S1 kèm khoảng tin cậy Wilson. Phụ lục bổ sung hồi quy đặc điểm câu và phân bố chữ cái phương án. Đoạn kết quả, mô tả RQ4, giới hạn prompt 8 token và bốn tài liệu mới (Messick, Dawson, Al Faraby, Wei) đi theo bản LaTeX đã sửa. Danh mục hiện 52 mục, tất cả được trích dẫn.
+
+## Cập nhật 15/10/2026
 
 ## Xử lý ba điểm còn lại ở lượt sửa mới
 
@@ -28,7 +32,7 @@ Các mục dưới đây mô tả sửa phương pháp từ lượt trước và
 - Chưa có teacher coding, Cohen/Fleiss kappa hoặc candidate item responses. Không thể kiểm định proxy bằng điểm tổng môn của 7,29 triệu bản ghi.
 - Digest cũ không thể khôi phục chắc chắn từ tag hiện tại; hạn chế provenance vẫn được công khai.
 - Giữ log 17 câu không parse và 62 identity permutations cùng phân tích 1.621 cặp đổi thật. Không sửa hồi tố input của các log đã chạy.
-- Danh mục hiện 48 mục, đáp ứng mục tiêu mới 45–50 nguồn. Chưa có một audit độc lập của toàn bộ nguồn cũ và mọi khẳng định trong bài.
+- Danh mục bản 15/10 có 48 mục. Bản 19/10 thêm 4 nguồn và đạt 52 mục đã trích dẫn. Chưa có một audit độc lập của toàn bộ nguồn cũ và mọi khẳng định trong bài.
 - Đã thay `others` bằng danh sách tác giả từ metadata gốc cho Kasneci và ba technical reports; chưa thể bảo đảm trạng thái xuất bản cuối của mọi preprint trong danh mục.
 
 ## Trạng thái APA và biên dịch
